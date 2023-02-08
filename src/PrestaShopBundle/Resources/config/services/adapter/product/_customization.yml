@@ -1,0 +1,46 @@
+services:
+  _defaults:
+    public: true
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\Validate\CustomizationFieldValidator:
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\Repository\CustomizationFieldRepository:
+    arguments:
+      - '@doctrine.dbal.default_connection'
+      - '%database_prefix%'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Validate\CustomizationFieldValidator'
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\Update\CustomizationFieldDeleter:
+    arguments:
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Repository\CustomizationFieldRepository'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository'
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\Update\ProductCustomizationFieldUpdater:
+    arguments:
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Repository\CustomizationFieldRepository'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Update\CustomizationFieldDeleter'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Repository\ProductMultiShopRepository'
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\QueryHandler\GetProductCustomizationFieldsHandler:
+    arguments:
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Repository\CustomizationFieldRepository'
+    tags:
+      - name: tactician.handler
+        command: PrestaShop\PrestaShop\Core\Domain\Product\Customization\Query\GetProductCustomizationFields
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\CommandHandler\SetProductCustomizationFieldsHandler:
+    arguments:
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Repository\CustomizationFieldRepository'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Update\ProductCustomizationFieldUpdater'
+    tags:
+      - name: tactician.handler
+        command: PrestaShop\PrestaShop\Core\Domain\Product\Customization\Command\SetProductCustomizationFieldsCommand
+
+  PrestaShop\PrestaShop\Adapter\Product\Customization\CommandHandler\RemoveAllCustomizationFieldsFromProductHandler:
+    arguments:
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Update\CustomizationFieldDeleter'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Repository\ProductRepository'
+      - '@PrestaShop\PrestaShop\Adapter\Product\Customization\Update\ProductCustomizationFieldUpdater'
+    tags:
+      - name: tactician.handler
+        command: PrestaShop\PrestaShop\Core\Domain\Product\Customization\Command\RemoveAllCustomizationFieldsFromProductCommand
